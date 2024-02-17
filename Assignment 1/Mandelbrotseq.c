@@ -5,21 +5,24 @@
 #define HEIGHT 480
 #define MAX_ITER 255
 
-struct complex{
+typedef struct complex{
   double real;
   double imag;
-};
+} Complex;
 
-
-int cal_pixel(struct complex c) {
+int cal_pixel(Complex c) {
     
-
+            // z0 = 0
             double z_real = 0;
             double z_imag = 0;
 
+            // z1 = z0^2 + c
+            // z2 = z1^2 + c
+            // c is the complex coordinates of each pixel in the image
             double z_real2, z_imag2, lengthsq;
 
             int iter = 0;
+            
             do {
                 z_real2 = z_real * z_real;
                 z_imag2 = z_imag * z_imag;
@@ -30,7 +33,7 @@ int cal_pixel(struct complex c) {
                 iter++;
             }
             while ((iter < MAX_ITER) && (lengthsq < 4.0));
-
+            // the number of iterations determines the color of the pixel
             return iter;
 
 }
@@ -60,21 +63,23 @@ int main() {
     double AVG = 0;
     int N = 10; // number of trials
     double total_time[N];
-    struct complex c;
+    Complex c;
  
     for (int k=0; k<N; k++){
       clock_t start_time = clock(); // Start measuring time
       int i, j;
       for (i = 0; i < HEIGHT; i++) {
           for (j = 0; j < WIDTH; j++) {
-              c.real = (j - WIDTH / 2.0) * 4.0 / WIDTH;
-              c.imag = (i - HEIGHT / 2.0) * 4.0 / HEIGHT;
-              image[i][j] = cal_pixel(c);
+                
+            //scaling the coordinates to fit the mandelbrot set
+            c.real = (j - WIDTH / 2.0) * 4.0 / WIDTH;
+            c.imag = (i - HEIGHT / 2.0) * 4.0 / HEIGHT;
+            image[i][j] = cal_pixel(c);
           }
       }
 
 
-      clock_t end_time = clock(); // End measuring time
+      clock_t end_time = clock(); // End measuring  time
 
       total_time[k] = ((double)(end_time - start_time)) / CLOCKS_PER_SEC;
       printf("Execution time of trial [%d]: %f seconds\n", i , total_time[k]);
