@@ -92,7 +92,7 @@ int main(int argc, char const *argv[])
         }
 }   }
     if(rank==0){
-            printf("The average execution time of 10 trials is: %f ms\n", AVG/N*1000); //in ms x1000
+            printf("The average execution time of 10 trials on a dynamic task assignment is: %f ms\n", AVG/N*1000); //in ms x1000
     save_pgm("mandelbrotdynamic.pgm", image);
     }
     MPI_Finalize();

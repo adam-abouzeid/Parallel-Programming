@@ -71,7 +71,7 @@ int main(){
     }
      }
      if(rank==0){
-         printf("The average execution time of 10 trials is: %f ms\n", AVG/N*1000); //in ms x1000
+         printf("The average execution time of 10 trials on a static task assignment implementation is: %f ms\n", AVG/N*1000); //in ms x1000
          save_pgm("mandelbrotstatic.pgm", image);
      }
     
