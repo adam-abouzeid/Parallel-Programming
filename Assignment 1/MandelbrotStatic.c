@@ -33,7 +33,7 @@ int main(){
     double imag_min=-2.0;
     double scale_real = (real_max-real_min)/WIDTH;
     double scale_imag= (imag_max-imag_min)/HEIGHT;
-
+    
     MPI_Init(NULL, NULL);
 
     int world_size;
@@ -52,7 +52,7 @@ int main(){
     clock_t start_time  = clock();
          for (int i = start_row; i < end_row; i++) {
         for (int j = 0; j < WIDTH; j++) {
-          //scaling
+         
           c.real = real_min + ((float) j * scale_real);
           c.imag = imag_min + ((float)i * scale_imag);
           // calculate each slot in the local array in parallel on all processors (all local arrays)
