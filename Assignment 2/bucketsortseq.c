@@ -12,6 +12,8 @@ void merge_sort(int arr[], int left, int right);
 void merge_buckets(int buckets[][NUM_ELEMENTS], int arr[]);
 void bucket_sort(int arr[]);
 
+
+
 int main() {
 
     double time_taken;
@@ -19,6 +21,7 @@ int main() {
     int trials =10;
     clock_t start, end;
     //repeat for 10 trials and take average
+
     for(int i=0;i<trials;i++){
         
         int numbers_array[NUM_ELEMENTS];
@@ -26,8 +29,8 @@ int main() {
         start = clock();
         // Seed the random number generator
         srand(time(NULL));
-        for (int i = 0; i < NUM_ELEMENTS; i++) {
-            numbers_array[i] = rand() % 100; //between 0 and 99
+        for (int j = 0; j < NUM_ELEMENTS; j++) {
+            numbers_array[j] = rand() % 100; //between 0 and 99
         }
 
         bucket_sort(numbers_array);
