@@ -129,7 +129,7 @@ void bucket_sort(int arr[]) {
             }
         }
     }
-    omp_set_num_threads(8);
+    omp_set_num_threads(4);
     #pragma omp parallel for
     for (int i = 0; i < NUM_BUCKETS; i++) { // non empty bcukets are sorted
         if (buckets[i][0] != -1) { // check  bucket is not empty
