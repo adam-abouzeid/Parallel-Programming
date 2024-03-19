@@ -106,10 +106,11 @@ void merge_buckets(int buckets[][NUM_ELEMENTS], int arr[]) {
 }
 
 void bucket_sort(int arr[]) {
-    
+     omp_set_num_threads(4);
     int buckets[NUM_BUCKETS][NUM_ELEMENTS];
 
     // Bucket Initializing
+    // #pragma omp parallel for collapse(2)
     for (int i = 0; i < NUM_BUCKETS; i++) {
         for (int j = 0; j < NUM_ELEMENTS; j++) {
             buckets[i][j] = -1; //smallest number (-1) outside the range of generated numbers [0-99]
@@ -129,7 +130,7 @@ void bucket_sort(int arr[]) {
             }
         }
     }
-    omp_set_num_threads(4);
+   
     #pragma omp parallel for
     for (int i = 0; i < NUM_BUCKETS; i++) { // non empty bcukets are sorted
         if (buckets[i][0] != -1) { // check  bucket is not empty
