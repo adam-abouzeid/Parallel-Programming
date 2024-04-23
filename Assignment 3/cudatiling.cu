@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
+#include <time.h>
 
 #define TILE_WIDTH 16  // Define the size of the tile for tiling in the kernel
 
-
 __global__ void matrixMultiply(double *A, double *B, double *C, int m, int n, int p) {
-   
     __shared__ double tile_A[TILE_WIDTH][TILE_WIDTH];
     __shared__ double tile_B[TILE_WIDTH][TILE_WIDTH];
 
@@ -14,9 +13,7 @@ __global__ void matrixMultiply(double *A, double *B, double *C, int m, int n, in
     int col = blockIdx.x * blockDim.x + threadIdx.x;
     double sum = 0.0;
 
-    
     for (int t = 0; t < (n + TILE_WIDTH - 1) / TILE_WIDTH; t++) {
-      
         int idxA = row * n + t * TILE_WIDTH + threadIdx.x;
         if (idxA / n == row && idxA % n < n) {  
             tile_A[threadIdx.y][threadIdx.x] = A[idxA];
@@ -25,14 +22,14 @@ __global__ void matrixMultiply(double *A, double *B, double *C, int m, int n, in
         }
 
         int idxB = (t * TILE_WIDTH + threadIdx.y) * p + col;
-        if (idxB / p == t * TILE_WIDTH + threadIdx.y && idxB % p == col) {  // Check within matrix boundaries
+        if (idxB / p == t * TILE_WIDTH + threadIdx.y && idxB % p == col) {
             tile_B[threadIdx.y][threadIdx.x] = B[idxB];
         } else {
             tile_B[threadIdx.y][threadIdx.x] = 0.0;
         }
 
         __syncthreads();  
-     
+
         for (int k = 0; k < TILE_WIDTH; k++) {
             sum += tile_A[threadIdx.y][k] * tile_B[k][threadIdx.x];
         }
@@ -40,17 +37,15 @@ __global__ void matrixMultiply(double *A, double *B, double *C, int m, int n, in
         __syncthreads();  
     }
 
-
     if (row < m && col < p) {
         C[row * p + col] = sum;
     }
 }
 
-
 double* randomMatrix(int rows, int cols) {
     double* matrix = (double*)malloc(rows * cols * sizeof(double));
     for (int i = 0; i < rows * cols; i++) {
-        matrix[i] = (double)rand() / RAND_MAX * 100;  // Random double between 0 and 100
+        matrix[i] = (double)rand() / RAND_MAX * 100;
     }
     return matrix;
 }
@@ -78,7 +73,22 @@ int main() {
     dim3 dimBlock(TILE_WIDTH, TILE_WIDTH);
     dim3 dimGrid((p + TILE_WIDTH - 1) / TILE_WIDTH, (m + TILE_WIDTH - 1) / TILE_WIDTH);
 
-    matrixMultiply<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, m, n, p);
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    float milliseconds = 0, totalSeconds = 0;
+
+    for (int i = 0; i < 10; i++) {
+        cudaEventRecord(start);
+        matrixMultiply<<<dimGrid, dimBlock>>>(d_A, d_B, d_C, m, n, p);
+        cudaEventRecord(stop);
+        cudaEventSynchronize(stop);
+
+        cudaEventElapsedTime(&milliseconds, start, stop);
+        totalSeconds += milliseconds / 1000.0;  // Convert milliseconds to seconds
+    }
+
+    printf("Average time taken over 10 iterations: %.6f seconds\n", totalSeconds / 10);
 
     cudaMemcpy(C, d_C, sizeC, cudaMemcpyDeviceToHost);
 
@@ -88,6 +98,9 @@ int main() {
     free(A);
     free(B);
     free(C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 
     return 0;
 }
